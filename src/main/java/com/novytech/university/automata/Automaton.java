@@ -1,6 +1,7 @@
 package com.novytech.university.automata;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -11,6 +12,7 @@ public class Automaton {
     private final Map<String, State> states = new LinkedHashMap<>();
     private final List<Symbol> alphabet = new ArrayList<>();
     private final List<Transition> transitions = new ArrayList<>();
+    private @Setter State initialState;
 
     private Automaton() {}
 
@@ -22,6 +24,7 @@ public class Automaton {
         System.out.println("---------TRANSITION---------");
         transitions.stream().map(Transition::toString).forEach(System.out::println);
         System.out.println("----------------------------");
+        System.out.println();
     }
 
     public void eliminateEps() {
@@ -139,19 +142,19 @@ public class Automaton {
         private static Automaton fromSource() {
             Automaton result = new Automaton();
 
-            State q0 = new State("Q0", StateType.COMMON);
-            State q1 = new State("Q1", StateType.COMMON);
-            State q2 = new State("Q2", StateType.COMMON);
-            State q3 = new State("Q3", StateType.FINAL);
-            State q4 = new State("Q4", StateType.COMMON);
-            State q5 = new State("Q5", StateType.COMMON);
+            State q0 = new State("q0", StateType.COMMON);
+            State q1 = new State("q1", StateType.COMMON);
+            State q2 = new State("q2", StateType.COMMON);
+            State q3 = new State("q3", StateType.FINAL);
+            State q4 = new State("q4", StateType.COMMON);
+            State q5 = new State("q5", StateType.COMMON);
 
-            result.states.put("Q0", q0);
-            result.states.put("Q1", q1);
-            result.states.put("Q2", q2);
-            result.states.put("Q3", q3);
-            result.states.put("Q4", q4);
-            result.states.put("Q5", q5);
+            result.states.put(q0.getName(), q0);
+            result.states.put(q1.getName(), q1);
+            result.states.put(q2.getName(), q2);
+            result.states.put(q3.getName(), q3);
+            result.states.put(q4.getName(), q4);
+            result.states.put(q5.getName(), q5);
 
             Symbol x = new Symbol("x");
             Symbol y = new Symbol("y");
@@ -167,6 +170,8 @@ public class Automaton {
             result.addTransition(q5, y, q2);
             result.addTransition(q1, y, q4);
             result.addTransition(q4, eps, q2);
+
+            result.setInitialState(q0);
 
             return result;
         }
