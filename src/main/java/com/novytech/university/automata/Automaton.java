@@ -46,10 +46,17 @@ public class Automaton {
             List<Transition> incomingEpsTransitions = sourceState.getInbound().get(Symbol.EPS);
 
             if (incomingEpsTransitions != null) {
+                boolean wasAdded = false;
                 for (Transition incomingEpsTransition : incomingEpsTransitions) {
                     State source = incomingEpsTransition.getSource();
                     Transition newEpsTransition = addTransition(source, Symbol.EPS, targetState);
-                    epsTransitions.add(newEpsTransition);
+                    if (newEpsTransition != null) {
+                        epsTransitions.add(newEpsTransition);
+                        wasAdded = true;
+                    }
+                }
+                if (wasAdded) {
+                    epsTransitions.add(epsTransition);
                 }
             }
         }
@@ -79,10 +86,17 @@ public class Automaton {
                 if (activator != Symbol.EPS) {
                     List<Transition> transitions = parentTransitions.get(activator);
 
+                    boolean wasAdded = false;
                     for (Transition transition : transitions) {
                         State source = transition.getSource();
 
                         Transition newTransition = addTransition(source, activator, trg);
+                        if (newTransition != null) {
+                            wasAdded = true;
+                        }
+                    }
+                    if (wasAdded) {
+                        epsTransitions.add(epsTransition);
                     }
                 }
             }
@@ -123,7 +137,7 @@ public class Automaton {
         // Check if exists
         for (Transition trans: transitions) {
             if (trans.getSource().equals(source) && trans.getActivator().equals(activator) && trans.getTarget().equals(target)) {
-                return trans;
+                return null;
             }
         }
         // Create if not
@@ -135,11 +149,12 @@ public class Automaton {
 
     // FACTORIES
     public static Automaton fromSource() {
-        return AutomatonFactory.fromSource();
+        return AutomatonFactory.fromSource2();
     }
 
     private static class AutomatonFactory{
-        private static Automaton fromSource() {
+        private static Automaton fromSource1() {
+
             Automaton result = new Automaton();
 
             State q0 = new State("q0", StateType.COMMON);
@@ -174,6 +189,36 @@ public class Automaton {
             result.setInitialState(q0);
 
             return result;
+        }
+        private static Automaton fromSource2() {
+            Automaton automaton = new Automaton();
+
+            State q0 = new State("q0", StateType.COMMON);
+            State q1 = new State("q1", StateType.COMMON);
+            State q2 = new State("q2", StateType.FINAL);
+
+            automaton.states.put(q0.getName(), q0);
+            automaton.states.put(q1.getName(), q1);
+            automaton.states.put(q2.getName(), q2);
+
+            automaton.setInitialState(q0);
+
+            Symbol x = new Symbol("x");
+            Symbol y = new Symbol("y");
+            Symbol eps = Symbol.EPS;
+
+            automaton.alphabet.add(x);
+            automaton.alphabet.add(y);
+
+            automaton.addTransition(q0, x, q0);
+            automaton.addTransition(q0, y, q0);
+            automaton.addTransition(q0, x, q1);
+            automaton.addTransition(q0, eps, q2);
+            automaton.addTransition(q1, eps, q2);
+            automaton.addTransition(q1, y, q2);
+            automaton.addTransition(q1, y, q0);
+
+            return automaton;
         }
     }
 }
