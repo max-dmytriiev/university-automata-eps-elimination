@@ -32,7 +32,16 @@ public class SuperAutomaton {
 
         while (!superStates.isEmpty()) {
             SuperState source = superStates.remove();
-            superAutomaton.states.add(source);
+            boolean shouldAdd = true;
+            for (SuperState s: superAutomaton.states) {
+                if (s.equals(source)) {
+                    shouldAdd = false;
+                    break;
+                }
+            }
+            if (shouldAdd) {
+                superAutomaton.states.add(source);
+            }
             Set<State> sourceStates = source.getSources();
             Map<Symbol, Set<State>> transitionMap = new HashMap<>();
 
@@ -68,9 +77,19 @@ public class SuperAutomaton {
 
                             SuperState superState = new SuperState(states, newName, mustBeFinal ? StateType.FINAL : StateType.COMMON);
                             SuperTransition newSuperTransition = new SuperTransition(source, activator, superState);
-                            source.addOutboundTransition(newSuperTransition);
-                            superAutomaton.transitions.add(newSuperTransition);
-                            superStates.add(superState);
+
+                            boolean willAdd = true;
+                            for (SuperTransition superTransition : superAutomaton.transitions) {
+                                if (superTransition.equals(newSuperTransition)) {
+                                    willAdd = false;
+                                    break;
+                                }
+                            }
+                            if (willAdd) {
+                                source.addOutboundTransition(newSuperTransition);
+                                superAutomaton.transitions.add(newSuperTransition);
+                                superStates.add(superState);
+                            }
                     }
             );
         }
