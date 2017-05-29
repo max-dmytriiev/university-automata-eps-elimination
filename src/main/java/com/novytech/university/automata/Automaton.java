@@ -12,7 +12,7 @@ public class Automaton {
     private final Map<String, State> states = new LinkedHashMap<>();
     private final List<Symbol> alphabet = new ArrayList<>();
     private final List<Transition> transitions = new ArrayList<>();
-    private @Setter State initialState;
+    private Set<State> initialStates = new HashSet<>();
 
     private Automaton() {}
 
@@ -28,11 +28,34 @@ public class Automaton {
     }
 
     public void eliminateEps() {
+        addInitialStates();
         buildEpsilonTransitionsClosure();
         markNewFinalStates();
         addNewTransitions();
         discardEpsTransitions();
         verify();
+    }
+
+    // Add new initial states
+    private void addInitialStates() {
+        Queue<State> stq = new LinkedList<>();
+
+        stq.addAll(initialStates);
+
+        while (!stq.isEmpty()) {
+            State s = stq.remove();
+            List<Transition> outbound = s.getOutbound().get(Symbol.EPS);
+
+            if (outbound != null) {
+                for (Transition t: outbound) {
+                    State to = t.getTarget();
+                    if (!initialStates.contains(to)) {
+                        initialStates.add(to);
+                        stq.add(to);
+                    }
+                }
+            }
+        }
     }
 
     // Transitive closure for epsilon transitions
@@ -149,7 +172,7 @@ public class Automaton {
 
     // FACTORIES
     public static Automaton fromSource() {
-        return AutomatonFactory.fromSource2();
+        return AutomatonFactory.fromSource5();
     }
 
     private static class AutomatonFactory{
@@ -163,6 +186,8 @@ public class Automaton {
             State q3 = new State("q3", StateType.FINAL);
             State q4 = new State("q4", StateType.COMMON);
             State q5 = new State("q5", StateType.COMMON);
+
+            result.initialStates.add(q0);
 
             result.states.put(q0.getName(), q0);
             result.states.put(q1.getName(), q1);
@@ -186,8 +211,6 @@ public class Automaton {
             result.addTransition(q1, y, q4);
             result.addTransition(q4, eps, q2);
 
-            result.setInitialState(q0);
-
             return result;
         }
         private static Automaton fromSource2() {
@@ -197,11 +220,11 @@ public class Automaton {
             State q1 = new State("q1", StateType.COMMON);
             State q2 = new State("q2", StateType.FINAL);
 
+            automaton.initialStates.add(q0);
+
             automaton.states.put(q0.getName(), q0);
             automaton.states.put(q1.getName(), q1);
             automaton.states.put(q2.getName(), q2);
-
-            automaton.setInitialState(q0);
 
             Symbol x = new Symbol("x");
             Symbol y = new Symbol("y");
@@ -217,6 +240,126 @@ public class Automaton {
             automaton.addTransition(q1, eps, q2);
             automaton.addTransition(q1, y, q2);
             automaton.addTransition(q1, y, q0);
+
+            return automaton;
+        }
+        private static Automaton fromSource3() {
+            Automaton automaton = new Automaton();
+
+            State q0 = new State("q0", StateType.COMMON);
+            State q1 = new State("q1", StateType.COMMON);
+            State q2 = new State("q2", StateType.COMMON);
+            State q3 = new State("q3", StateType.COMMON);
+            State q4 = new State("q4", StateType.COMMON);
+            State q5 = new State("q5", StateType.FINAL);
+            State q6 = new State("q6", StateType.FINAL);
+
+            automaton.states.put(q0.getName(), q0);
+            automaton.states.put(q1.getName(), q1);
+            automaton.states.put(q2.getName(), q2);
+            automaton.states.put(q3.getName(), q3);
+            automaton.states.put(q4.getName(), q4);
+            automaton.states.put(q5.getName(), q5);
+            automaton.states.put(q6.getName(), q6);
+
+            automaton.initialStates.add(q0);
+
+            Symbol a = new Symbol("a");
+            Symbol b = new Symbol("b");
+            Symbol eps = Symbol.EPS;
+
+            automaton.alphabet.add(a);
+            automaton.alphabet.add(b);
+
+            automaton.addTransition(q0, eps, q1);
+            automaton.addTransition(q1, eps, q2);
+            automaton.addTransition(q2, eps, q5);
+            automaton.addTransition(q0, eps, q3);
+            automaton.addTransition(q3, a, q4);
+            automaton.addTransition(q4, b, q5);
+            automaton.addTransition(q4, eps, q6);
+
+            return automaton;
+        }
+        private static Automaton fromSource4() {
+            Automaton automaton = new Automaton();
+
+            State q0 = new State("q0", StateType.COMMON);
+            State q1 = new State("q1", StateType.COMMON);
+            State q2 = new State("q2", StateType.COMMON);
+            State q3 = new State("q3", StateType.FINAL);
+
+            automaton.states.put(q0.getName(), q0);
+            automaton.states.put(q1.getName(), q1);
+            automaton.states.put(q2.getName(), q2);
+            automaton.states.put(q3.getName(), q3);
+
+            automaton.initialStates.add(q0);
+
+            Symbol x = new Symbol("x");
+            Symbol y = new Symbol("y");
+            Symbol eps = Symbol.EPS;
+
+            automaton.alphabet.add(x);
+            automaton.alphabet.add(y);
+
+            automaton.addTransition(q0, x, q1);
+            automaton.addTransition(q0, y, q2);
+            automaton.addTransition(q0, eps, q3);
+
+            automaton.addTransition(q1, eps, q2);
+            automaton.addTransition(q1, y, q3);
+
+            automaton.addTransition(q2, x, q0);
+            automaton.addTransition(q2, x, q3);
+            automaton.addTransition(q2, eps, q3);
+            automaton.addTransition(q2, y, q1);
+
+            automaton.addTransition(q3, x, q0);
+
+            return automaton;
+        }
+        private static Automaton fromSource5() {
+            Automaton automaton = new Automaton();
+
+            State q0 = new State("q0", StateType.COMMON);
+            State q1 = new State("q1", StateType.COMMON);
+            State q2 = new State("q2", StateType.COMMON);
+            State q3 = new State("q3", StateType.COMMON);
+            State q4 = new State("q4", StateType.COMMON);
+            State q5 = new State("q5", StateType.FINAL);
+
+            automaton.states.put(q0.getName(), q0);
+            automaton.states.put(q1.getName(), q1);
+            automaton.states.put(q2.getName(), q2);
+            automaton.states.put(q3.getName(), q3);
+            automaton.states.put(q4.getName(), q4);
+            automaton.states.put(q5.getName(), q5);
+
+            automaton.initialStates.add(q0);
+
+            Symbol a = new Symbol("a");
+            Symbol c = new Symbol("c");
+            Symbol d = new Symbol("d");
+            Symbol eps = Symbol.EPS;
+
+            automaton.alphabet.add(a);
+            automaton.alphabet.add(c);
+            automaton.alphabet.add(d);
+
+            automaton.addTransition(q0, eps, q1);
+            automaton.addTransition(q0, a, q1);
+
+            automaton.addTransition(q1, c, q1);
+            automaton.addTransition(q1, d, q2);
+            automaton.addTransition(q1, c, q4);
+
+            automaton.addTransition(q2, c, q3);
+
+            automaton.addTransition(q3, c, q3);
+            automaton.addTransition(q3, eps, q5);
+
+            automaton.addTransition(q4, d, q3);
 
             return automaton;
         }

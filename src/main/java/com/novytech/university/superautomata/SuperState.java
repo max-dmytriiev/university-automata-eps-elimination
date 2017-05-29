@@ -3,10 +3,14 @@ package com.novytech.university.superautomata;
 import com.novytech.university.automata.State;
 import com.novytech.university.automata.StateType;
 import com.novytech.university.automata.Symbol;
+import com.novytech.university.automata.Transition;
+
 import lombok.*;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,11 +33,18 @@ public class SuperState {
         return name;
     }
 
-    public static SuperState singularOf(State state) {
-        Set<State> sources = new HashSet<>();
-        sources.add(state);
-
-        return new SuperState(sources, "{" + state.getName() + "}", state.getType());
+    public static SuperState of(Set<State> states) {
+        HashSet<State> sources = new HashSet<>(states);
+        String name = "{";
+        StateType type = StateType.COMMON;
+        for (State s :sources) {
+            name = name + s.getName();
+            if (type != StateType.FINAL) {
+                type = s.getType();
+            }
+        }
+        name += "}";
+        return new SuperState(sources, name, type);
     }
 
     public void addOutboundTransition(SuperTransition t) {

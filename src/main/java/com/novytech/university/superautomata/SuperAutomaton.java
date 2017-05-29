@@ -24,8 +24,8 @@ public class SuperAutomaton {
     public static SuperAutomaton fromAutomaton(Automaton automaton) {
         SuperAutomaton superAutomaton = new SuperAutomaton();
 
-        State initialState = automaton.getInitialState();
-        SuperState initialSuperState = SuperState.singularOf(initialState);
+        Set<State> initialStates = automaton.getInitialStates();
+        SuperState initialSuperState = SuperState.of(initialStates);
 
         Queue<SuperState> superStates = new LinkedList<>();
         superStates.add(initialSuperState);
