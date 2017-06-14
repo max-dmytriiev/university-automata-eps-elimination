@@ -7,18 +7,13 @@ import com.novytech.university.automata.Transition;
 
 import lombok.*;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @AllArgsConstructor
 @EqualsAndHashCode(of = {"name", "type"})
 public class SuperState {
-    private final Set<State> sources;
+    private final SortedSet<State> sources;
     private final String name;
     private @Setter StateType type;
 
@@ -34,7 +29,7 @@ public class SuperState {
     }
 
     public static SuperState of(Set<State> states) {
-        HashSet<State> sources = new HashSet<>(states);
+        TreeSet<State> sources = new TreeSet<>(states);
         String name = "{";
         StateType type = StateType.COMMON;
         for (State s :sources) {

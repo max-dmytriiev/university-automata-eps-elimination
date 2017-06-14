@@ -24,7 +24,8 @@ public class SuperAutomaton {
     public static SuperAutomaton fromAutomaton(Automaton automaton) {
         SuperAutomaton superAutomaton = new SuperAutomaton();
 
-        Set<State> initialStates = automaton.getInitialStates();
+        SortedSet<State> initialStates = automaton.getInitialStates();
+
         SuperState initialSuperState = SuperState.of(initialStates);
 
         Queue<SuperState> superStates = new LinkedList<>();
@@ -42,8 +43,8 @@ public class SuperAutomaton {
             if (shouldAdd) {
                 superAutomaton.states.add(source);
             }
-            Set<State> sourceStates = source.getSources();
-            Map<Symbol, Set<State>> transitionMap = new HashMap<>();
+            SortedSet<State> sourceStates = source.getSources();
+            Map<Symbol, SortedSet<State>> transitionMap = new HashMap<>();
 
             sourceStates.stream().map(state -> state.getOutbound().values())
                     .flatMap(Collection::stream)
@@ -53,7 +54,7 @@ public class SuperAutomaton {
                             transition -> {
                                 Symbol activator = transition.getActivator();
                                 State target = transition.getTarget();
-                                Set<State> targets = transitionMap.get(activator);
+                                SortedSet<State> targets = transitionMap.get(activator);
                                 if (targets == null) {
                                     targets = new TreeSet<>();
                                 }
@@ -65,7 +66,7 @@ public class SuperAutomaton {
             transitionMap.forEach(
                     (activator, states) -> {
                             boolean mustBeFinal = false;
-
+                            states = states.stream().sorted(Comparator.comparing(State::getName)).collect(Collectors.toCollection(TreeSet::new));
                             StringBuilder nameBuilder = new StringBuilder("{");
                             for (State state : states) {
                                 nameBuilder.append(state.getName());

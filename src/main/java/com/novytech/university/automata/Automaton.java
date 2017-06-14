@@ -1,13 +1,6 @@
 package com.novytech.university.automata;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -18,7 +11,7 @@ public class Automaton {
     private final Map<String, State> states = new LinkedHashMap<>();
     private final List<Symbol> alphabet = new ArrayList<>();
     private final List<Transition> transitions = new ArrayList<>();
-    private Set<State> initialStates = new HashSet<>();
+    private SortedSet<State> initialStates = new TreeSet<>();
 
     private Automaton() {}
 
@@ -178,7 +171,7 @@ public class Automaton {
 
     // FACTORIES
     public static Automaton fromSource() {
-        return AutomatonFactory.fromSource5();
+        return AutomatonFactory.fromSource1();
     }
 
     private static class AutomatonFactory{
